@@ -36,5 +36,34 @@ This is a **Django project in Python**, focused on the enumeration of cloud driv
 ### Installation without Docker
 
 1. Clone the repository:
+ https://github.com/Greenchman/Project-drive-imagine_ai-.git
+ cd Project-drive-imagine_ai
+2. Create a virtual environment:
+   python -m venv env
 
+
+3. Activate the virtual environment:
+   
+    # Windows
+    env\Scripts\activate
+    
+    # Linux / Mac
+    source env/bin/activate
+
+
+4. Install dependencies:
+   pip install -r requirements.txt'
+
+5. Apply migrations:
+   python manage.py migrate
+
+6. Run the development server:
+   python manage.py runserver
+
+
+Now you can Access the app
+Open your browser and go to:
+
+http://127.0.0.1:8000/
+ 
 
