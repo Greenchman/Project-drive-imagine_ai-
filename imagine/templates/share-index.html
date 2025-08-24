@@ -1,0 +1,444 @@
+{% extends 'share.html' %} {% block body %}
+{% load my_custom_tags %}
+
+    <input type="hidden" id="selectedObjectId" value="">
+    
+    <!--Password change Model -->
+
+    <div class="modal fade" id="ChangePasswordModal" tabindex="-1" aria-labelledby="ChangePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content swift-fonts">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ChangePasswordModalLabel">Create New Folder</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ChangePasswordForm" action="{% url 'Change_password' %}"  method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="New_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="New_password" name="New_password" placeholder="Enter new password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- pdf viewer model-->
+  <!-- This is where the PDF will be rendered -->
+     <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+        <div class="modal-dialog view-model-pdf" role="document">
+            <div class="modal-content swift-fonts">                
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"> 
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h3 id="file-name-pdf"></h3>
+                    <div id="pdfViewer" style="overflow: auto; max-height: 750px; max-width: 1500px;"></div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+     <!-- excel viewer model-->
+  <!-- This is where the excel will be rendered -->
+    <div class="modal fade" id="excelModal" tabindex="-1" role="dialog" aria-labelledby="excelModalLabel" aria-hidden="true">
+        <div class="modal-dialog view-model-excel" role="document">
+            <div class="modal-content swift-fonts">                
+                <div class="modal-header">
+                    <h5 class="modal-title" id="excelModalLabel">Excel Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"> 
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-container">
+                        <h3 id="file-name-excel"></h3>  <!-- Element to show the file name -->
+                        <table id="excel-table" style="width: 100%; border-collapse: collapse;">
+                            <!-- Content will be inserted dynamically by JavaScript -->
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+                                 <!-- Image Modal -->
+  <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content swift-fonts">        
+        <div class="modal-header">
+          <h5 class="modal-title" id="file-name-image">Image Name</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <img id="image-view" src="" alt="Image" style="width: 100%; height: auto;" />
+        </div>
+       </div>
+     </div>
+   </div>
+                                               <!-- zip archive Display Modal -->
+  <div class="modal fade" id="zipFileModal" tabindex="-1" aria-labelledby="zipFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+       <div class="modal-content swift-fonts">        
+        <div class="modal-header">
+          <h5 class="modal-title" id="zipFileModalLabel">ZIP File Contents</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul id="zipFileContentList"></ul> <!-- ZIP file content will be displayed here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rar File Display Model-->
+                     <!-- RAR Modal -->
+<div class="modal fade" id="rarModal" tabindex="-1" aria-labelledby="rarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content swift-fonts">            
+            <div class="modal-header">
+                <h5 class="modal-title" id="rarModalLabel">RAR File: <span id="rarFileName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="rarModalContent">
+                <!-- Extracted files will be displayed here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Doc and Docx file Display Model-->
+<div class="modal" id="docModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog view-model-pdf" role="document">
+        <div class="modal-content swift-fonts">            
+            <div class="modal-header">
+                <h5 class="modal-title">Document Viewer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"> 
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body" style="overflow: auto; max-height: 750px; max-width: 1800px;">
+                <!-- Document will be displayed here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+
+
+
+    
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/unrar-js@0.2.3/unrar.min.js"></script>
+
+    <script>
+        ////////////////////////////////// Function to handle right-click and dropdown behavior///////////////////////////////
+        
+        document.querySelectorAll('.file-card').forEach(card => {
+            card.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+                this.classList.add('show-menu');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.file-card')) {
+                document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+            }
+        });
+
+         
+///////////////////////////For File opening Module js script //////////////////////
+
+        function openFile(file_name, file_id) {
+                const exts = file_name.split('.').pop().toLowerCase();  // Extract the extension directly
+                
+                if (exts === 'pdf') {
+                const pdfViewerElement = document.getElementById('pdfViewer');
+                const fileNameElement = document.getElementById("file-name-pdf");
+                fileNameElement.innerText = file_name; 
+                // Clear previous content in the viewer
+                pdfViewerElement.innerHTML = '';
+                 // Set the file name
+               // Set the file name
+                // Construct the URL for the PDF file
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // Adjust as needed
+                // Load the PDF file
+                var loadingTask = pdfjsLib.getDocument(url);
+                loadingTask.promise.then(function(pdf) {
+                    // Loop through each page of the PDF
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        pdf.getPage(pageNum).then(function(page) {
+                            const scale = 2.4;  // Adjust scale as needed
+                            const viewport = page.getViewport({ scale: scale });
+            
+                            // Create a canvas for the current page
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+                            pdfViewerElement.appendChild(canvas);  // Add the canvas to the viewer
+            
+                            // Render the PDF page into the canvas
+                            const renderContext = {
+                                canvasContext: context,
+                                viewport: viewport
+                            };
+                            page.render(renderContext);
+                        });
+                    }
+                    // Show the modal after loading the PDF
+                    $('#pdfModal').modal('show');
+                }).catch(function(error) {
+                    console.error("Error loading PDF:", error);
+                });
+        
+        }    
+            else if (exts == 'xlsx' || exts =='xls'){
+                const table = document.getElementById("excel-table");
+                const fileNameElement = document.getElementById("file-name-excel");
+                table.innerHTML = '';  // Clear previous content
+                fileNameElement.innerText = file_name;  // Set the file name
+
+            
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // call the open_file view function
+            
+                // Fetch the Excel file
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.arrayBuffer();
+                    })
+                    .then(data => {
+                        const workbook = XLSX.read(data, { type: "array" });
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+            
+                        const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        sheetData.forEach(rowData => {
+                            const row = table.insertRow();
+                            rowData.forEach(cellData => {
+                                const cell = row.insertCell();
+                                cell.innerText = cellData;
+                            });
+                        });
+            
+                        $('#excelModal').modal('show');  // Show the modal
+                    })
+                    .catch(function(error) {
+                        console.error("Error loading PDF:", error);
+                    });
+            }
+            else if (exts === 'jpg' || exts === 'jpeg' || exts === 'png' || exts === 'gif' || exts === 'bmp') {
+                const imageElement = document.getElementById("image-view");
+                const fileNameElement = document.getElementById("file-name-image");
+                
+                fileNameElement.innerText = file_name;  // Set the file name
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // call the open_file view function
+            
+                // Fetch the image file
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.blob();  // Get the image data as a blob
+                    })
+                    .then(imageBlob => {
+                        const imageUrl = URL.createObjectURL(imageBlob);  // Create a local URL for the image blob
+                        imageElement.src = imageUrl;  // Set the image source to the fetched image URL
+                        
+                        $('#imageModal').modal('show');  // Show the image modal
+                    })
+                    .catch(function(error) {
+                        console.error("Error loading image:", error);
+                    });
+            }
+            else if (exts === 'rar' || exts === 'zip') {
+                if (exts === 'zip') {
+                    handleZipFile(file_id); // Use the JSZip function for ZIP files
+                } else if (exts === 'rar') {
+                    handleRarFile(file_id); // Handle RAR files using unrar.js
+                } else {
+                    // Handle other file types
+                }
+            
+                                                                         
+            function handleZipFile(file_id) {
+
+                const zipFileContentList = document.getElementById('zipFileContentList');
+                zipFileContentList.innerHTML = ""; // Clear previous content
+
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // call the open_file view function
+            
+                fetch(url)
+                    .then(response => response.arrayBuffer())
+                    .then(data => {
+                        const zip = new JSZip();
+                        return zip.loadAsync(data);
+                    })
+                    .then(zipContent => {
+                        
+                        zipContent.forEach(function (relativePath, zipEntry) {
+                            const li = document.createElement('li');
+                            li.textContent = relativePath;
+                            zipFileContentList.appendChild(li);
+                        });
+                       
+                        $('#zipFileModal').modal('show');
+                    })
+                    .catch(error => {
+                        console.error('Error handling ZIP file:', error);
+                    });
+                }
+            function handleRarFile(file_id){
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // Call your Django view for RAR
+
+                // Fetch the RAR file
+                fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.arrayBuffer(); // Convert the response to an array buffer
+                })
+                .then(data => {
+                    const archiveData = new Uint8Array(data);
+    
+                    // Use unrar.js to extract the contents
+                    const unpackedFiles = Unrar.unrarSync(archiveData, {
+                        onProgress: function(data) {
+                            const percent = Math.round((data.currentBytesUnarchived / data.totalUncompressedBytesInArchive) * 100);
+                            console.log("Progress: ", percent, "%");
+                        }
+                    });
+    
+                    // Clear the modal content (if any previous content exists)
+                    const modalContent = document.getElementById('rarModalContent');
+                    modalContent.innerHTML = '';
+    
+                    // Update modal content with unpacked files
+                    unpackedFiles.forEach(function(file) {
+                        const fileElement = document.createElement('div');
+                        fileElement.innerText = `File: ${file.filename}, Size: ${file.fileData.length} bytes`;
+                        modalContent.appendChild(fileElement);
+                    });
+    
+                    // Show the modal with extracted files
+                    $('#rarModal').modal('show');
+                })
+                .catch(error => {
+                    console.error("Error loading RAR file:", error);
+                });
+                    function handleClick(file) {
+                        const url = baseUrl + 'get_object_details/' + encodeURIComponent(file);
+                    
+                        // Fetch the file details (object_id and file_name)
+                        fetch(url)
+                            .then(response => response.json())
+                            .then(data => {
+                                const objectId = data.object_id;
+                                const fileName = data.file_name;
+                                
+                                openFile(fileName, objectId)
+                            })
+                            .catch(error => {
+                                console.error("Error fetching file details:", error);
+                            });
+                    }  
+               }
+
+            }
+            else if (exts == 'docx' || exts =='doc'){
+
+                    const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);
+                    console.log("Fetching URL:", url);
+                
+                    fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const arrayBuffer = event.target.result;
+                            mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+                                .then(displayResult)
+                                .catch(err => console.error("Error converting document:", err));
+                        };
+                        reader.readAsArrayBuffer(blob);
+                    })
+                    .catch(error => {
+                        console.error("Error loading document:", error);
+                    });
+                
+                function displayResult(result) {
+                    const modalBody = document.getElementById('modal-body');
+                    modalBody.innerHTML = result.value; // Set the HTML content
+                    $('#docModal').modal('show'); // Show the modal
+                }
+                
+            }
+            else if (exts == 'txt' || exts == 'ps' || exts == 'bin' || exts == 'cmd') {
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // Call the open_text_file view function
+            
+                // Fetch the text file
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.text(); // Read the response as text
+                    })
+                    .then(text => {
+                        const modalBody = document.getElementById('modal-body');
+                        modalBody.innerHTML = ''; // Clear previous content
+                        const pre = document.createElement('pre'); // Use <pre> to preserve formatting
+                        pre.textContent = text; // Set the text content
+                        modalBody.appendChild(pre); // Add the text to the modal
+            
+                        $('#docModal').modal('show'); // Show the modal
+                    })
+                    .catch(error => {
+                        console.error("Error loading text file:", error);
+                    });
+            }    
+         
+        }
+                
+       
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</body>
+</html>
+
+{% endblock body %}

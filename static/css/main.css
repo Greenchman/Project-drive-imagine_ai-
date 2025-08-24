@@ -1,0 +1,276 @@
+body {
+    background-color: #f1f3f4;
+    font-family: 'Roboto', sans-serif;
+}
+.initials-circle {
+    width: 50px;               /* Width of the circle */
+    height: 50px;              /* Height of the circle */
+    background-color: #bb6c2b;  /* Background color */
+    border-radius: 50%;         /* Make it circular */
+    display: flex;              /* Flexbox to center the content */
+    justify-content: center;    /* Center horizontally */
+    align-items: center;        /* Center vertically */
+    color: white;               /* Text color */
+    font-size: 20px;            /* Font size */
+    font-weight: bold;          /* Bold font */
+    font-family: Arial, sans-serif;  /* Font family */
+}
+#sidebarMenu {
+    float: left;
+    position: relative;
+top: 50px;
+left: 20px;
+width:70px;
+height: 500px; /* Full height */
+font-size: 1px; /* Sidebar font size */
+padding: 5px 5px;
+border-radius: 15px;
+}
+.collapse{
+  
+    display: block;
+  
+    transform: translateY(-10px);
+    
+}
+/* Keyframe for items to fade in and move up */
+
+
+
+
+
+.swift-fonts{
+   
+        font-family: cursive;
+        font-weight: bold;
+         
+        font-size: 15px;
+
+}
+.holding{
+
+top : 50px;
+}
+.nav-link {
+color: var(--google-grey-900);;
+font-size: 15px; /* Font size for sidebar links */
+padding: 15px 20px; /* Increased padding for more height */
+}
+.nav-link:hover {
+color: blue;
+
+}
+.nav-item{
+font-size: 15px; 
+}
+.nav{
+padding-right: 5px;
+}
+.dropdown-item{
+font-size: 15px; 
+}
+.logo img {
+    width: 40px;
+    margin-right: 10px;
+}
+.file-grid {
+    display: grid;
+    position: relative;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+}
+.table {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: left;
+    cursor: pointer;
+    
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    position: relative;
+  
+}
+.table-responsive{
+overflow-x: auto;
+height: 850px;
+}
+
+.table tbody tr td {
+    font-family: sans primary;
+    font-weight: bold;
+    color: gray; 
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.card-title {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+}
+
+.tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+    white-space: nowrap;
+    z-index: 1;
+    transition: opacity 0.2s;
+}
+
+.card-title:hover + .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+
+.file-icon {
+    font-size: 20px;
+   
+}
+
+/* Larger sidebar and increased font size */
+.sidebar {
+    background-color: white;
+    height: 100vh;
+    font-size: 20px;
+}
+.beside-back{
+   float: right;
+   justify-content: space-between;
+}
+.dropdown{
+padding: 10px;
+}
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    left: 0;
+}
+
+.show-menu .dropdown-menu {
+    display: block;
+}
+
+/* Larger sidebar and increased font size */
+.folder-path {
+    font-size: 18px;
+    margin-left: 15px;
+}
+/* Adjust dropdown and toolbar */
+.toolbar {
+    top: 100px;
+    display: flex;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    align-items: center;
+    background-color: white;
+    border-radius: 20px;
+    font-size: 10px;
+    font-style: bold;
+    height: 60px;
+
+ }
+ .nav{
+    top: 100px;
+ }
+ .d-flex-align-items-center{
+    float: left;
+}     
+.dropdown{
+font-size: 15px;
+font-style: bold ;     }
+    
+.table-hover tbody tr:hover {
+background-color: #f1f1f1;
+}
+
+.table thead th {
+border-bottom: 2px solid #dee2e6;
+height: 10px;
+}
+.table tbody tr {
+min-height: 50px;  /* Adjust the value as needed */
+}
+
+.container {
+max-width: 1600px;
+}
+.view-model-pdf{
+max-width: 1500px; /* Adjust width as needed */
+width: 1500px;   /* Fixed width */
+height: 900px;  /* Fixed height */
+}
+.view-model-excel{
+max-width: 1800px; /* Adjust width as needed */
+width: 1800px;   /* Fixed width */
+height: 600px;  /* Fixed height */
+}
+/*need portion */
+/* Excel table styles */
+
+#excel-table {
+width: 100%;  /* Ensure the table takes full width */
+border-collapse: collapse;  /* Ensures borders don’t overlap */
+overflow: hidden;  /* Hide overflow */
+}
+
+#excel-table th, #excel-table td {
+border: 5px solid #ddd;  /* Adds a border to table cells */
+padding: 8px;  /* Adds some padding */
+text-align: left;  /* Aligns text to the left */
+overflow: hidden;  /* Hide overflow within cells */
+white-space: nowrap;  /* Prevents text from wrapping */
+text-overflow: ellipsis;  /* Adds ellipsis (...) for overflow */
+}
+
+#excel-table th {
+background-color: #f2f2f2;  /* Header background */
+font-weight: bold;  /* Bold headers */
+}
+
+.table-container {
+
+overflow-y: auto;  /* Adds horizontal scroll for the table */
+max-width: 100%;  /* Ensures the container doesn't exceed full width */
+}
+
+
+#excel-table tr:hover {
+background-color: #f2f2f2;
+}
+
+#file-name-pdf{
+font-family: snas;
+font-weight: bold;
+color: blue;
+}
+#file-name-excel{
+font-family: snas;
+font-weight: bold;
+color: blue;
+}
+.modal-body {
+overflow-y: auto; /* Allows scrolling within the modal body */
+max-height: 70vh; /* Adjust as needed to limit the modal height */
+max-width: 1800px;
+}
+.doc-model-view {
+max-width: 80%; /* Set to your preferred width */
+width: 70%;     /* Set to your preferred width */
+}
+.custom-modal-size {
+    max-width: 70%;
+    height: 800px; /* Adjust width as needed */
+    width: 800px; /* Set a fixed width or use a percentage */
+}

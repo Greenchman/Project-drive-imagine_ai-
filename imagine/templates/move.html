@@ -1,0 +1,92 @@
+<div style="padding: 10px;"id="folderContent" >
+    {% load my_custom_tags %}
+    <div>
+        <a class="btn btn-primary" href="#" onclick="openFolder('{{ home.data_id }}'); return false;" style=" font-family: sans primary;font-weight: bold; font-size: 15px;">Home</a> <div class="btn btn-secondary" > ></div>  
+        {% with parent_id|back_history as list %}
+          {% for parent in list %}
+            {% if parent != 'None' %}
+             <a class="btn btn-primary" href="#"  onclick="openFolder('{{ parent.data_id }}'); return false;" style=" font-family: sans primary;font-weight: bold; font-size: 15px;"> {{ parent }}</a> <div class="btn btn-secondary" > ></div>
+            {% endif %}
+          {% endfor %}
+        {% endwith %}
+    </div>
+</div>
+<div class="modal-body">
+    <form id="MoveForm" action="{% url 'path_change' parent_id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="container mt-4">
+            <div class="table-responsive mt-2">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Created</th>
+                            <th scope="col">Modified</th>
+                            <th scope="col">Shared With</th>
+                        </tr>
+                    </thead>
+                    <tbody id="folderList">
+                        {% for fd in folders %}
+                        <tr>
+                            <td ><div data-id="{{f.data_id}}" data-type="{{f.data_type}}">
+                                <div class="file-card">
+                                    <img width="30" height="30" src="https://img.icons8.com/3d-fluency/94/folder-invoices--v2.png" alt="folder-invoices"/>
+                                    {{ fd.name }}
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="openFolder('{{ fd.data_id }}','{{ fd.name }}'); return false;">open</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td>{{ fd.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ fd.updated_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                {% for user in fd.shared_with.all %}
+                                    {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    Not shared
+                                {% endfor %}
+                            </td>
+                           
+                        
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tbody>
+                        <button type="submit" class="btn btn-primary">Move</button>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mb-3">
+        <input type="hidden"  id="obj_id" name="object_id" value="">
+        <div>
+        
+    </form>
+</div>
+
+<script>
+
+// Function to handle right-click and dropdown behavior
+document.querySelectorAll('.file-card').forEach(card => {
+    card.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+        this.classList.add('show-menu');
+    });
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function (e) {
+    if (!e.target.closest('.file-card')) {
+        document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const selectedObjectId = localStorage.getItem('selectedObjectId'); // or URL parameter
+    if (selectedObjectId) {
+        document.getElementById('object_id').value = selectedObjectId;
+        console.log(selectedObjectId);
+    }
+});
+
+</script>

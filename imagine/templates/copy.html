@@ -1,0 +1,95 @@
+<div id="folderContent_copy"style="padding: 10px;">
+    {% load my_custom_tags %}
+    <div>
+        <a class="btn btn-primary" href="#" onclick="openFolder_copy('{{ home.data_id }}', '{{ home.name }}','{{ home.data_type}}');return false;" style=" font-family: sans primary;font-weight: bold; font-size: 15px;">Home</a> <div class="btn btn-secondary" > ></div>  
+        {% with parent_id|back_history as list %}
+          {% for parent in list %}
+            {% if parent != 'None' %}
+             <a class="btn btn-primary" href="#"  onclick="openFolder_copy('{{ parent.data_id }}', '{{ parent.name }}','{{ parent.data_type}}'); return false;" style=" font-family: sans primary;font-weight: bold; font-size: 15px;"> {{ parent }}</a> <div class="btn btn-secondary" > ></div>
+            {% endif %}
+          {% endfor %}
+        {% endwith %}
+    </div>
+</div>
+<div class="modal-body" >
+    <form id="CopyForm" action="{% url 'item_coping' parent_id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if messages %}
+            {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="container mt-4">
+            <div class="table-responsive mt-2">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Created</th>
+                            <th scope="col">Modified</th>
+                            <th scope="col">Shared With</th>
+                        </tr>
+                    </thead>
+                    <tbody id="folderList">
+                        {% for fd in folders %}
+                        <tr>
+                            <td ><div data-id="{{fd.data_id}}" data-type="{{fd.data_type}}">
+                                <div class="file-card">
+                                    <img width="30" height="30" src="https://img.icons8.com/3d-fluency/94/folder-invoices--v2.png" alt="folder-invoices"/>
+                                    {{ fd.name }}
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="openFolder_copy('{{ fd.data_id }}','{{ fd.name }}','{{ fd.data_type }}'); return false;">open</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td>{{ fd.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ fd.updated_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                {% for user in fd.shared_with.all %}
+                                    {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    Not shared
+                                {% endfor %}
+                            </td>
+                           
+                        
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tbody>
+                        <button type="submit" class="btn btn-primary">Copy Here</button>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mb-3">
+        <input type="hidden"  id="copy_obj_id" name="object_id" value="">
+        <div>
+        
+    </form>
+</div>
+
+<script>
+
+// Function to handle right-click and dropdown behavior
+document.querySelectorAll('.file-card').forEach(card => {
+    card.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+        this.classList.add('show-menu');
+    });
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function (e) {
+    if (!e.target.closest('.file-card')) {
+        document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+    }
+});
+
+
+</script>

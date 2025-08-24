@@ -1,0 +1,1087 @@
+{% extends 'base.html' %} {% block body %}
+{% load my_custom_tags %}
+
+    <input type="hidden" id="selectedObjectId" value="">
+    
+  
+
+    <!-- New Folder Modal -->
+    <div class="modal fade" id="newFolderModal" tabindex="-1" aria-labelledby="newFolderModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content swift-fonts">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newFolderModalLabel">Create New Folder</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newFolderForm" action="{% url 'addfolder' parent_id %}"  method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="folderName" class="form-label">Folder Name</label>
+                            <input type="text" class="form-control" id="folderName" name="foldername" placeholder="Enter folder name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+ <!-- Password Change Modal -->
+ <div class="modal fade" id="ChangePasswordModal" tabindex="-1" aria-labelledby="ChangePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content swift-fonts">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ChangePasswordModalLabel">Create New Folder</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ChangePasswordForm" action="{% url 'Change_password' %}"  method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="New_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="New_password" name="New_password" placeholder="Enter new password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Upload Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content swift-fonts">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Upload Files</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm" action="{% url 'folder' parent_id %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="uploadFiles" class="form-label">Select files</label>
+                            <input class="form-control" type="file" id="uploadFiles" name="file" multiple required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </form>
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  {% endfor %}
+                  <script>
+                    // Auto-hide messages after 5 seconds
+                    setTimeout(() => {
+                      document.querySelectorAll('.alert').forEach(alert => alert.classList.remove('show'));
+                    }, 5000);  // 5000 milliseconds = 5 seconds
+                  </script>
+                {% endif %}
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+       <!-- Rename Modal -->
+    <div class="modal fade" id="RenameModel" tabindex="-1" aria-labelledby="RenameModelLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content swift-fonts">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="RenameModellLabel">Rename Objects</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                   
+                    <form id="renameForm" action="{% url 'rename' parent_id %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="renameObjects" class="form-label">Rename Objects</label>
+                            <input type="hidden" id="item_Id" name="item_id" value="">
+                            <input type="hidden" id="item_Type" name="item_type" value="">
+                            <input type="text" class="form-control" id="reName" name="new_name" placeholder="Enter new name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Rename</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--deletion confermation Label-->
+
+    <div class="modal fade" id="DeleteModel" tabindex="-1" aria-labelledby="DeleteModelLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content swift-fonts">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="DeleteModellLabel">Delete Objects</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="delete-Form" action ="{% url 'traching_object'  %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <p>Are you sure you want to delete ? </p>
+                            <input type="hidden" id="object_Id" name="object_id" value="">
+                            <input type="hidden" id="object_Type" name="object_type" value="">
+                        </div>
+                        <button type="submit"class="btn btn-primary">Confirm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+
+                                   <!-- HTML for Modal -->
+  <div class="modal fade" id="shareFileModal" tabindex="-1" role="dialog" aria-labelledby="shareFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content swift-fonts">
+        <div class="modal-header">
+          <h5 class="modal-title" id="shareFileModalLabel">Share File</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Form for sharing -->
+          <form id="shareForm" action="{% url 'Share_objects' parent_id %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" id="object_id" name="object_id" value="">
+        
+            <!-- Add User and Permission Controls -->
+            <div class="form-group">
+                <label for="userSelect">Add User to Share With</label>
+                <select class="form-control" id="userSelect" name="user_id">
+                    <option value="">Select a user</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}</option>
+
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <label for="permissionSelect">Choose Permission</label>
+            <select class="form-select" id="permissionSelect" name="PermissionSelect">
+                <option value="Read">Read</option>
+                <option value="Write">Write</option>
+            </select>
+        
+            <!-- Existing Users Table for Permitted Users -->
+            <div class="existing-shares mt-3">
+                <h6>Currently Shared With</h6>
+                <table class="table" id="sharedUsersTable">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Permission</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Fetched data will populate here -->
+                    </tbody>
+                </table>
+            </div>
+        
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Update Shares</button>
+            </div>
+           </form>
+        
+         </div>
+       </div>
+     </div>
+   </div>
+  
+
+   
+ 
+
+ <!-- copy model here -->  
+
+<div class="modal fade" id="CopyModel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="CopyModelLabel" aria-hidden="false">
+    <div class="modal-dialog "style="max-width: 70%; height: 800px;  width: 800px;">
+        <div class="modal-content swift-fonts">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="CopyModelLabel">Copy Objects</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div>
+                <div class="toolbar my-4" style="padding: 10px;">
+                    <div class="d-flex-align-items-center">
+                        <form action="{% url 'folder' parent_id %}" method="get">
+                            <button class="btn btn-outline-secondary me-2" style="font-size: 13px; font-width: bold;">⬅️ Cencel
+                            </button>
+                        </form>
+                       
+                    </div>
+                    <div class="d-flex-align-items-center">
+                       
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" disabled>⬅️ Back</button>
+                    
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body"id="folderContent_copy">
+                
+                <!-- Folder List (Inside Form) -->
+                <form id="CopyForm" action="{% url 'item_coping' parent_id %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="container mt-4">
+                        <div class="table-responsive mt-2">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Created</th>
+                                        <th scope="col">Modified</th>
+                                        <th scope="col">Shared With</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="folderList">
+                                    {% for fd in folders %}
+                                    <tr>
+                                        <td>
+                                            <div data-id="{{fd.data_id}}" data-type="{{fd.data_type}}">
+                                                <div class="file-card">
+                                                    <img width="30" height="30" src="https://img.icons8.com/3d-fluency/94/folder-invoices--v2.png" alt="folder-invoices"/>
+                                                    {{ fd.name }}
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class="dropdown-item" onclick="openFolder_copy('{{ fd.data_id }}', '{{ fd.name }}','{{ fd.data_type}}')">Open</a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ fd.created_at|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ fd.updated_at|date:"Y-m-d H:i" }}</td>
+                                        <td>
+                                            {% for user in fd.shared_with.all %}
+                                                {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                            {% empty %}
+                                                Not shared
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tbody>
+                                    <!-- Submit Button (Inside Form) -->
+                                    <button type="submit" class="btn btn-primary">Copy Here</button>
+                            </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Input to Store Object ID -->
+                    <div class="mb-3">
+                        <input type="hidden" id="copy_obj_id" name="object_id" value="">
+                    </div>
+
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+     <!-- pdf viewer model-->
+  <!-- This is where the PDF will be rendered -->
+     <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+        <div class="modal-dialog view-model-pdf" role="document">
+            <div class="modal-content swift-fonts">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"> 
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h3 id="file-name-pdf"></h3>
+                    <div id="pdfViewer" style="overflow: auto; max-height: 750px; max-width: 1500px;"></div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+     <!-- excel viewer model-->
+  <!-- This is where the excel will be rendered -->
+    <div class="modal fade" id="excelModal" tabindex="-1" role="dialog" aria-labelledby="excelModalLabel" aria-hidden="true">
+        <div class="modal-dialog view-model-excel" role="document">
+            <div class="modal-content swift-fonts">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="excelModalLabel">Excel Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"> 
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-container">
+                        <h3 id="file-name-excel"></h3>  <!-- Element to show the file name -->
+                        <table id="excel-table" style="width: 100%; border-collapse: collapse;">
+                            <!-- Content will be inserted dynamically by JavaScript -->
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+                                 <!-- Image Modal -->
+  <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content swift-fonts">
+        <div class="modal-header">
+          <h5 class="modal-title" id="file-name-image">Image Name</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <img id="image-view" src="" alt="Image" style="width: 100%; height: auto;" />
+        </div>
+       </div>
+     </div>
+   </div>
+                                               <!-- zip archive Display Modal -->
+  <div class="modal fade" id="zipFileModal" tabindex="-1" aria-labelledby="zipFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+       <div class="modal-content swift-fonts">
+        <div class="modal-header">
+          <h5 class="modal-title" id="zipFileModalLabel">ZIP File Contents</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul id="zipFileContentList"></ul> <!-- ZIP file content will be displayed here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rar File Display Model-->
+                     <!-- RAR Modal -->
+<div class="modal fade" id="rarModal" tabindex="-1" aria-labelledby="rarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content swift-fonts">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rarModalLabel">RAR File: <span id="rarFileName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="rarModalContent">
+                <!-- Extracted files will be displayed here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Doc and Docx file Display Model-->
+<div class="modal" id="docModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog view-model-pdf" role="document">
+        <div class="modal-content swift-fonts">
+            <div class="modal-header">
+                <h5 class="modal-title">Document Viewer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"> 
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body" style="overflow: auto; max-height: 750px; max-width: 1800px;">
+                <!-- Document will be displayed here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+            <!-- Move the object into a folder -->
+<div class="modal fade" id="MoveModel" tabindex="-1" aria-labelledby="MoveModelLabel" aria-hidden="true">
+    <div class="modal-dialog " style="max-width: 70%; height: 800px;  width: 800px;">
+        <div class="modal-content swift-fonts">
+            <div class="modal-header">
+                <h5 class="modal-title" id="MoveModelLabel">Move Objects</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div>
+                <div class="toolbar my-4" style="padding: 10px;">
+                    <div class="d-flex-align-items-center">
+                        <form action="{% url 'folder' parent_id %}" method="get">
+                            <button class="btn btn-outline-secondary me-2" style="font-size: 13px; font-width: bold;">⬅️ Cencel
+                            </button>
+                        </form>
+
+                    </div>
+                    <div class="d-flex-align-items-center">
+                        
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" disabled>⬅️ Back</button>
+                        
+                    </div>
+            </div>
+      
+            <div class="modal-body"  id="folderContent">
+                <form id="MoveForm" action="{% url 'path_change' parent_id %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="container mt-4">
+                        <div class="table-responsive mt-2">
+                            <table class="table table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Created</th>
+                                        <th scope="col">Modified</th>
+                                        <th scope="col">Shared With</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="folderList">
+                                    {% for fd in folders %}
+                                    <tr>
+                                        <td ><div data-id="{{f.data_id}}" data-type="{{f.data_type}}">
+                                            <div class="file-card">
+                                                <img width="30" height="30" src="https://img.icons8.com/3d-fluency/94/folder-invoices--v2.png" alt="folder-invoices"/>
+                                                {{ fd.name }}
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" onclick="openFolder('{{ fd.data_id}}','{{ fd.name }}')">open</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        <td>{{ fd.created_at|date:"Y-m-d H:i" }}</td>
+                                        <td>{{ fd.updated_at|date:"Y-m-d H:i" }}</td>
+                                        <td>
+                                            {% for user in fd.shared_with.all %}
+                                                {{ user.username }}{% if not forloop.last %}, {% endif %}
+                                            {% empty %}
+                                                Not shared
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tbody>
+                                    <button type="submit" class="btn btn-primary">Move</button>
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                      <input type="hidden"  id="obj_id" name="object_id" value="">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+ 
+
+
+
+    
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/unrar-js@0.2.3/unrar.min.js"></script>
+
+    <script>
+        // Function to handle right-click and dropdown behavior
+        document.querySelectorAll('.file-card').forEach(card => {
+            card.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+                this.classList.add('show-menu');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.file-card')) {
+                document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+            }
+        });
+       
+            function setObjectId(id) {
+                document.getElementById('object_id').value = id;
+                document.getElementById('actionForm').submit();
+            }
+         
+         // for rename function use input find and calling the function
+         document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('renameForm');
+            const itemIdInput = document.getElementById('item_Id');
+            const itemTypeInput = document.getElementById('item_Type');
+        
+            document.querySelectorAll('.item').forEach(item => {
+                item.addEventListener('contextmenu', function(event) {
+                    event.preventDefault(); // Prevent the default context menu
+        
+                    // Get item ID and type
+                    const itemId = this.getAttribute('data-id');
+                    const itemType = this.getAttribute('data-type'); // Ensure 'data-type' is set for each item
+                
+                    // Set the hidden fields in the form
+                    itemIdInput.value = itemId;
+                    itemTypeInput.value = itemType;
+        
+                    /// Set the form action URL based on item type
+                    
+                    //form.action = '/rename/'; // URL for folder rename
+                  
+        
+                    // Show the form/modal (adjust based on your modal implementation)
+                    // Example: Use Bootstrap modal
+                    $('#renameModal').modal('show');///
+                });
+            });
+        });
+
+    ////////////////////////// Used for Delete form to fill the hiddin inputs //////////////////////
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('delete-Form');
+            const itemIdInput = document.getElementById('object_Id');
+            const itemTypeInput = document.getElementById('object_Type');
+        
+            document.querySelectorAll('.item').forEach(item => {
+                item.addEventListener('contextmenu', function(event) {
+                    event.preventDefault(); // Prevent the default context menu
+        
+                    // Get item ID and type
+                    const itemId = this.getAttribute('data-id');
+                    const itemType = this.getAttribute('data-type'); // Ensure 'data-type' is set for each item
+                
+                    // Set the hidden fields in the form
+                    itemIdInput.value = itemId;
+                    itemTypeInput.value = itemType;
+        
+                    /// Set the form action URL based on item type
+                    
+                    //form.action = '/rename/'; // URL for folder rename
+                  
+        
+                    // Show the form/modal (adjust based on your modal implementation)
+                    // Example: Use Bootstrap modal
+                    $('#deleteModal').modal('show');///
+                });
+            });
+        });
+
+
+    ////////////////////////// Used for share form to fill the hiddin inputs //////////////////////
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('shareForm');
+            const itemIdInput = document.getElementById('object_id');
+
+            document.querySelectorAll('.item').forEach(item => {
+                item.addEventListener('contextmenu', function(event) {
+                    event.preventDefault(); // Prevent the default context menu
+        
+                    // Get item ID and type
+                    const itemId = this.getAttribute('data-id');
+                
+                    // Set the hidden fields in the form
+                    itemIdInput.value = itemId;
+                  /// Set the form action URL based on item type
+                  loadPermittedUsers(itemId);
+                    //form.action = '/rename/'; // URL for folder rename
+                   console.log(itemId);
+        
+                    // Show the form/modal (adjust based on your modal implementation)
+                    // Example: Use Bootstrap modal
+                   
+                  
+        
+                });
+            });
+        });
+
+   ////////////////////////// Used for setting up the localstorage in a varibable of the riht clicked object id //////////////////////
+
+            document.querySelectorAll('.item').forEach(item => {
+                item.addEventListener('contextmenu', function(event) {
+                    event.preventDefault(); // Prevent the default context menu
+        
+                    // Get item ID and type
+                    const itemId = this.getAttribute('data-id');
+                  
+                     // Ensure 'data-type' is set for each item
+                
+                    // Set the hidden fields in the form
+                    
+                    localStorage.setItem('selectedObjectId', itemId);
+        
+                    /// Set the form action URL based on item type
+                    
+                    //form.action = '/rename/'; // URL for folder rename
+                  
+        
+                    // Show the form/modal (adjust based on your modal implementation)
+                    // Example: Use Bootstrap modal
+                });
+            });
+
+
+    ///////////////////////// Used for share form to load the shared user list with parmission for that object //////////////////////
+
+            function loadPermittedUsers(objectId) {
+                const url = baseUrl + 'load_permitted_users/' + encodeURIComponent(objectId);
+                fetch(url, {
+                    method: "GET",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = sharedUsersTable.querySelector("tbody");
+                    tbody.innerHTML = "";
+            
+                    data.shared_users.forEach(user => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${user.username} ${user.id}</td>
+                            <td>
+                                <select name="permissions[${user.id}]" class="form-select">
+                                    <option value="Read" ${user.permission === "Read" ? "selected" : ""}>Read</option>
+                                    <option value="Write" ${user.permission === "Write" ? "selected" : ""}>Write</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="remove_users[]" value="${user.id}">
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                });
+            }
+
+////////////////////////// Used for displaying the folder contents details in the copy model and
+ /////////////loading the copy.html file in to the copy model.
+
+
+            function openFolder_copy(folderId,folderNm,type) {
+                // Perform an AJAX request to get folder details
+                const url = baseUrl + 'folder/' + encodeURIComponent(folderId) + '/' + encodeURIComponent(folderNm) + '/' + encodeURIComponent(type);
+              
+    
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.text())  // Expect HTML content as the response
+                .then(data => {
+                    // Update modal content with the new folder structure (the response from Django)
+                    document.getElementById('folderContent_copy').innerHTML = data;
+            
+                    // Update the hidden input with the object ID
+                    const selectedObjectId = localStorage.getItem('selectedObjectId'); // Get from localStorage
+                    const itemIdInput = document.getElementById('copy_obj_id');
+                    if (selectedObjectId) {
+                        itemIdInput.value = selectedObjectId; // Set the hidden input
+                        console.log('Setting object_id to folder1:', selectedObjectId);
+                    }
+            
+                    // Reattach the event listeners for the new content
+                    attachEventListeners();
+                })
+                .catch(error => console.error('Error:', error));
+            }
+            
+            // Function to attach context menu event listeners
+            function attachEventListeners() {
+                document.querySelectorAll('.file-card').forEach(card => {
+                    card.addEventListener('contextmenu', function (e) {
+                        e.preventDefault();
+                        const objectId = this.getAttribute('data-id'); // Assuming the ID is stored in 'data-id'
+            
+               
+            
+                        // Show the context menu
+                        document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+                        this.classList.add('show-menu');
+                    });
+                });
+            
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!e.target.closest('.file-card')) {
+                        document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+                    }
+                });
+            }
+            
+            // Set the object_id when the modal is loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                const itemIdInput = document.getElementById('copy_obj_id');
+                const selectedObjectId = localStorage.getItem('selectedObjectId'); // Get the ID from localStorage
+            
+                // Set the value of the hidden input if selectedObjectId exists
+                if (selectedObjectId) {
+                    itemIdInput.value = selectedObjectId;
+                    console.log('Setting object_id to:', selectedObjectId);
+                    console.log("this is priting from folder");
+                }
+            });
+    
+
+////////////////////////// Used for displaying the folder contents details in the move model and
+ /////////////loading the copy.html file in to the move model.
+            
+            function openFolder(folderId,folderNm) {
+                // Perform an AJAX request to get folder details
+                const url = baseUrl + 'folder/' + encodeURIComponent(folderId) + '/' + encodeURIComponent(folderNm);
+
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.text())  // Expect HTML content as the response
+                .then(data => {
+                    // Update modal content with the new folder structure (the response from Django)
+                    document.getElementById('folderContent').innerHTML = data;
+            
+                    // Update the hidden input with the object ID
+                    const selectedObjectId = localStorage.getItem('selectedObjectId'); // Get from localStorage
+                    const itemIdInput = document.getElementById('obj_id');
+                    if (selectedObjectId) {
+                        itemIdInput.value = selectedObjectId; // Set the hidden input
+                        console.log('Setting object_id to folder1:', selectedObjectId);
+                    }
+            
+                    // Reattach the event listeners for the new content
+                    attachEventListeners();
+                })
+                .catch(error => console.error('Error:', error));
+            }
+            
+            // Function to attach context menu event listeners
+            function attachEventListeners() {
+                document.querySelectorAll('.file-card').forEach(card => {
+                    card.addEventListener('contextmenu', function (e) {
+                        e.preventDefault();
+                        const objectId = this.getAttribute('data-id'); // Assuming the ID is stored in 'data-id'
+            
+               
+            
+                        // Show the context menu
+                        document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+                        this.classList.add('show-menu');
+                    });
+                });
+            
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!e.target.closest('.file-card')) {
+                        document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+                    }
+                });
+            }
+            
+            // Set the object_id when the modal is loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                const itemIdInput = document.getElementById('obj_id');
+                const selectedObjectId = localStorage.getItem('selectedObjectId'); // Get the ID from localStorage
+            
+                // Set the value of the hidden input if selectedObjectId exists
+                if (selectedObjectId) {
+                    itemIdInput.value = selectedObjectId;
+                    console.log('Setting object_id to:', selectedObjectId);
+                    console.log("this is priting from folder");
+                }
+            });
+
+
+
+    ////////////////////////// Used for displaying the file contents for the file open feature.
+  
+        function openFile(file_name, file_id) {
+                const exts = file_name.split('.').pop().toLowerCase();  // Extract the extension directly
+                
+                if (exts === 'pdf') {
+                const pdfViewerElement = document.getElementById('pdfViewer');
+                const fileNameElement = document.getElementById("file-name-pdf");
+                fileNameElement.innerText = file_name; 
+                // Clear previous content in the viewer
+                pdfViewerElement.innerHTML = '';
+                 // Set the file name
+               // Set the file name
+                // Construct the URL for the PDF file
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // Adjust as needed
+                // Load the PDF file
+                var loadingTask = pdfjsLib.getDocument(url);
+                loadingTask.promise.then(function(pdf) {
+                    // Loop through each page of the PDF
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        pdf.getPage(pageNum).then(function(page) {
+                            const scale = 2.4;  // Adjust scale as needed
+                            const viewport = page.getViewport({ scale: scale });
+            
+                            // Create a canvas for the current page
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+                            pdfViewerElement.appendChild(canvas);  // Add the canvas to the viewer
+            
+                            // Render the PDF page into the canvas
+                            const renderContext = {
+                                canvasContext: context,
+                                viewport: viewport
+                            };
+                            page.render(renderContext);
+                        });
+                    }
+                    // Show the modal after loading the PDF
+                    $('#pdfModal').modal('show');
+                }).catch(function(error) {
+                    console.error("Error loading PDF:", error);
+                });
+        
+        }    
+            else if (exts == 'xlsx' || exts =='xls'){
+                const table = document.getElementById("excel-table");
+                const fileNameElement = document.getElementById("file-name-excel");
+                table.innerHTML = '';  // Clear previous content
+                fileNameElement.innerText = file_name;  // Set the file name
+
+            
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // call the open_file view function
+            
+                // Fetch the Excel file
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.arrayBuffer();
+                    })
+                    .then(data => {
+                        const workbook = XLSX.read(data, { type: "array" });
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+            
+                        const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        sheetData.forEach(rowData => {
+                            const row = table.insertRow();
+                            rowData.forEach(cellData => {
+                                const cell = row.insertCell();
+                                cell.innerText = cellData;
+                            });
+                        });
+            
+                        $('#excelModal').modal('show');  // Show the modal
+                    })
+                    .catch(function(error) {
+                        console.error("Error loading PDF:", error);
+                    });
+            }
+            else if (exts === 'jpg' || exts === 'jpeg' || exts === 'png' || exts === 'gif' || exts === 'bmp') {
+                const imageElement = document.getElementById("image-view");
+                const fileNameElement = document.getElementById("file-name-image");
+                
+                fileNameElement.innerText = file_name;  // Set the file name
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // call the open_file view function
+            
+                // Fetch the image file
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.blob();  // Get the image data as a blob
+                    })
+                    .then(imageBlob => {
+                        const imageUrl = URL.createObjectURL(imageBlob);  // Create a local URL for the image blob
+                        imageElement.src = imageUrl;  // Set the image source to the fetched image URL
+                        
+                        $('#imageModal').modal('show');  // Show the image modal
+                    })
+                    .catch(function(error) {
+                        console.error("Error loading image:", error);
+                    });
+            }
+            else if (exts === 'rar' || exts === 'zip') {
+                if (exts === 'zip') {
+                    handleZipFile(file_id); // Use the JSZip function for ZIP files
+                } else if (exts === 'rar') {
+                    handleRarFile(file_id); // Handle RAR files using unrar.js
+                } else {
+                    // Handle other file types
+                }
+            
+                                                                         
+            function handleZipFile(file_id) {
+
+                const zipFileContentList = document.getElementById('zipFileContentList');
+                zipFileContentList.innerHTML = ""; // Clear previous content
+
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // call the open_file view function
+            
+                fetch(url)
+                    .then(response => response.arrayBuffer())
+                    .then(data => {
+                        const zip = new JSZip();
+                        return zip.loadAsync(data);
+                    })
+                    .then(zipContent => {
+                        
+                        zipContent.forEach(function (relativePath, zipEntry) {
+                            const li = document.createElement('li');
+                            li.textContent = relativePath;
+                            zipFileContentList.appendChild(li);
+                        });
+                       
+                        $('#zipFileModal').modal('show');
+                    })
+                    .catch(error => {
+                        console.error('Error handling ZIP file:', error);
+                    });
+                }
+            function handleRarFile(file_id){
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // Call your Django view for RAR
+
+                // Fetch the RAR file
+                fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.arrayBuffer(); // Convert the response to an array buffer
+                })
+                .then(data => {
+                    const archiveData = new Uint8Array(data);
+    
+                    // Use unrar.js to extract the contents
+                    const unpackedFiles = Unrar.unrarSync(archiveData, {
+                        onProgress: function(data) {
+                            const percent = Math.round((data.currentBytesUnarchived / data.totalUncompressedBytesInArchive) * 100);
+                            console.log("Progress: ", percent, "%");
+                        }
+                    });
+    
+                    // Clear the modal content (if any previous content exists)
+                    const modalContent = document.getElementById('rarModalContent');
+                    modalContent.innerHTML = '';
+    
+                    // Update modal content with unpacked files
+                    unpackedFiles.forEach(function(file) {
+                        const fileElement = document.createElement('div');
+                        fileElement.innerText = `File: ${file.filename}, Size: ${file.fileData.length} bytes`;
+                        modalContent.appendChild(fileElement);
+                    });
+    
+                    // Show the modal with extracted files
+                    $('#rarModal').modal('show');
+                })
+                .catch(error => {
+                    console.error("Error loading RAR file:", error);
+                });
+                    function handleClick(file) {
+                        const url = baseUrl + 'get_object_details/' + encodeURIComponent(file);
+                    
+                        // Fetch the file details (object_id and file_name)
+                        fetch(url)
+                            .then(response => response.json())
+                            .then(data => {
+                                const objectId = data.object_id;
+                                const fileName = data.file_name;
+                                
+                                openFile(fileName, objectId)
+                            })
+                            .catch(error => {
+                                console.error("Error fetching file details:", error);
+                            });
+                    
+                    }  
+               }
+
+            }
+            else if (exts == 'docx' || exts =='doc'){
+
+                    const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);
+                    console.log("Fetching URL:", url);
+                
+                    fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            const arrayBuffer = event.target.result;
+                            mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+                                .then(displayResult)
+                                .catch(err => console.error("Error converting document:", err));
+                        };
+                        reader.readAsArrayBuffer(blob);
+                    })
+                    .catch(error => {
+                        console.error("Error loading document:", error);
+                    });
+                
+                function displayResult(result) {
+                    const modalBody = document.getElementById('modal-body');
+                    modalBody.innerHTML = result.value; // Set the HTML content
+                    $('#docModal').modal('show'); // Show the modal
+                }
+                
+            }
+            else if (exts == 'txt' || exts == 'ps' || exts == 'bin' || exts == 'cmd') {
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // Call the open_text_file view function
+            
+                // Fetch the text file
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.text(); // Read the response as text
+                    })
+                    .then(text => {
+                        const modalBody = document.getElementById('modal-body');
+                        modalBody.innerHTML = ''; // Clear previous content
+                        const pre = document.createElement('pre'); // Use <pre> to preserve formatting
+                        pre.textContent = text; // Set the text content
+                        modalBody.appendChild(pre); // Add the text to the modal
+            
+                        $('#docModal').modal('show'); // Show the modal
+                    })
+                    .catch(error => {
+                        console.error("Error loading text file:", error);
+                    });
+            }    
+         
+        }
+                
+       
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</body>
+</html>
+
+{% endblock body %}

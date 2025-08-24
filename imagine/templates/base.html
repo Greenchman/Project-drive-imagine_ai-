@@ -1,0 +1,309 @@
+{% load static %}
+{% load my_custom_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imagine Drive</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    
+</head>
+<body>
+   
+
+    <script>
+        // Dynamically set the base URL using Django's url template tag
+        var baseUrl = "http://127.0.0.1:8000/";  // Adjust 'your_base_view_name'
+    </script>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Include the PDF.js library -->
+    
+    
+    <script src="{% static 'js/xlsx.js'%}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="{% static 'js/zip.js'%}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/unrar-js@0.4.0/dist/unrar.js"></script>
+   
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand logo swift-fonts" href="#">
+                <img src="https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png" alt="MyDrive Logo">
+                Imagine Drive
+            </a>
+            <form class="d-flex w-50"  action="{% url 'search_view' parent_id %}"  method="GET">
+                <input class="form-control me-3" type="search" placeholder="Search in MyDrive"  id="search_quary" name="search_quary" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+            <!-- showing the short user name and with the user details and change password-->
+            <div class="initials-circle dropdown"  style="left: -150px;" >
+             {% with user.username|get_short_uname as stname %}
+             <a class="rounded-circle" style="color:white;font-size:20px; left: 0px;" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{stname}}</a>
+             {% endwith %}
+            
+             <div class="dropdown-menu swift-fonts"  aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" style="font-weight:bold; color:blue;">{{user.username}}</a>
+              <a class="dropdown-item" style="font-weight:bold; color:blue;" >{{user.email}}</a>
+              <a class="dropdown-item" style="font-weight:bold; color: red;" data-bs-toggle="modal" data-bs-target="#ChangePasswordModal">Change Password</a>
+             </div>
+            </div>
+            
+        </div>
+    </nav>
+ 
+    <!-- Sidebar and Content -->
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebarMenu" class=" holding col-md-3 col-lg-1 d-md-block">
+                <div class="fw-bold swift-fonts text-center " style="color:gray">
+                    <h4>{{user.username}}</h4>
+                    <div></div>
+                        <h4 style="color:blue" >Dashboard</h4>
+                 </div>
+                 <div style="right: 50%;">
+                
+                </div>
+                <div class=" pt-3 px-md-0">
+                    <ul class="nav flex-column">
+                        <li class="nav-item text-center"style="padding: 10px">
+                         
+                            <a class=" btn btn-primary swift-fonts dropdown-toggle" data-bs-toggle="collapse" href="#collapseExample" role="button" 
+                            aria-expanded="false" aria-controls="collapseExample" style ="width: 100%" >Sidebar</a>
+                        </li>
+                        <li class="nav-item collapse"style="padding: 10px" id="collapseExample" >
+                           
+                            <a class="btn btn-secondary swift-fonts " href="{% url 'index' %}" style ="width: 100%" >
+                                <i class='fas fa-folder-open' style='font-size:24px'></i>
+                               My Files
+                            </a>
+                        </li>
+                        <li class="nav-item collapse" style="padding: 10px" id="collapseExample">
+                            <a class="btn btn-secondary swift-fonts" href="{% url 'display_sharing' %}" style ="width: 100%">
+                                <i class='fas fa-share-square' style='font-size:24px'></i>
+                             Share Box
+                            </a>
+                        </li>
+                        <li class="nav-item collapse"style="padding: 10px" id="collapseExample">
+                            <a class="btn btn-secondary  swift-fonts" href="{% url 'trash_display_with_move' %}" style ="width: 100%">
+                                <i class='fas fa-trash-alt' style='font-size:24px'></i>
+                                Junk Box 
+                            </a>
+                            
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- Top Bar Inheriting new folder, file upload,path showing & logout tab -->
+            <main class="col-md-2  col-lg-10 px-md-5 ">
+                <div class="toolbar my-4" style="padding: 10px;">
+               
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            ➕ New
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#newFolderModal">📂 New Folder</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploadModal">⬆️ Upload Files</a></li>
+                            
+                        </ul>
+                    </div>
+                    <div class="d-flex-align-items-center">
+                        <a href="{% url 'back' parent_name parent_id %}" method="get">
+                            <button class="btn btn-outline-secondary " type="button" aria-expanded="false">⬅️ Back</button>
+                        </a>
+    				</div>
+                    
+        				
+    			<!-- For showing the path list for unidirectional navigation-->
+                    <div style="padding: 10px;">
+                        {% load my_custom_tags %}
+                        <div>
+                            <a class="btn btn-primary" href="{% url 'index' %}" style=" font-family: sans primary;font-weight: bold; font-size: 15px;">Home</a> <div class="btn btn-secondary" > ></div>  
+                            {% with parent_id|back_history as list %}
+                              {% for parent in list %}
+                                {% if parent != 'None' %}
+                                 <a class="btn btn-primary" href="{% url 'load_parent' parent.data_id %}"  style=" font-family: sans primary;font-weight: bold; font-size: 15px;"> {{ parent }}</a> <div class="btn btn-secondary" > ></div>
+                                {% endif %}
+                              {% endfor %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                    
+                    <div class="beside-back ms-sm-auto">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'logout' %}">
+        				<button class="btn btn-outline-secondary me-2" style="font-size: 13px;">⬅️ Logout</button>
+                        </a>
+                        {% endif %}
+    				</div>
+                </div>
+
+                <!-- Handing the notification display -->
+                {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              
+              {% endif %}
+              
+              
+            <!--Main Content-->
+
+                <div class="table-responsive mt-2 ">
+                    <table class="table table-hover">
+                        <thead class="thead-light swift-fonts">
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">File Size</th>
+                                <th scope="col">Created</th>
+                                <th scope="col">Modified</th>
+                                <th scope="col">Shared With</th>
+                            </tr>
+                        </thead>
+                        {% load my_custom_tags %}
+                          
+                        <tbody >
+                            <!-- For displaying files -->
+                            {% for f in files %}
+                            <tr>
+                                <td>
+                                    
+                                     <div class="item file-card dropdown" data-id="{{f.data_id}}" data-type="{{f.data_type}}">
+                                        
+                                       {% with f.fname|file_extension as ext %}
+                                            {% if ext == 'pdf' %}
+                                               <img width="35" height="35" src="https://img.icons8.com/color/48/pdf-2--v1.png" alt="pdf-2--v1"/>
+                                            {% elif ext == 'doc' or ext == 'docx' %}
+                                               <img width="35" height="35" src="https://img.icons8.com/color/48/word.png" alt="word"/>
+                                            {% elif ext == 'xls' or ext == 'xlsx' %}
+                                                <img width="35" height="35" src="https://img.icons8.com/color/48/xls.png" alt="xls"/>
+                                            {% elif ext == 'jpg' or ext == 'png' %}
+                                               <img width="35" height="35" src="https://img.icons8.com/color/48/full-image.png" alt="full-image"/>
+                                            {% elif ext == 'txt' %}
+                                               <img width="35" height="35" src="https://img.icons8.com/color/48/txt.png" alt="txt"/>
+                                            {% elif ext == 'ppt' or ext == 'pptx' %}
+                                               <img width="35" height="35" src="https://img.icons8.com/color/48/powerpoint.png" alt="powerpoint"/>
+                                            {% elif ext == 'exe' %}
+                                               <img width="35" height="35" src="https://img.icons8.com/color/48/exe.png" alt="exe"/>
+                                            {% elif ext == 'txt' %}
+                                               <img width="35" height="35" src="https://img.icons8.com/color/48/txt.png" alt="txt"/>
+                                            {% elif ext == 'zip' or ext == 'rar'%}
+                                              <img width="35" height="35" src="https://img.icons8.com/fluency/48/archive.png" alt="archive"/>
+                                            {% elif ext == 'mp4' or ext == 'avi' or ext == 'mov' or ext == 'wmv' or ext == 'mkv'  or  ext == 'webm' %}
+                                              <img width="35" height="35"src="https://img.icons8.com/ios-filled/50/video-file.png" alt="video-file"/>
+                                            {% else %}
+                                              <img width="35" height="35"  src="https://img.icons8.com/color/48/file.png" alt="file"/>    
+                                            {% endif %}
+                                      {% endwith %} 
+                                    <a data-file-name="{{f.fname}}" data-file-id="{{f.data_id}}" 
+                                    ondblclick="openFile(this.getAttribute('data-file-name'), this.getAttribute('data-file-id'))">{{ f.fname }}</a>
+                                    <ul class="dropdown-menu swift-fonts">
+                           <!-- Right Click Menu for files-->
+                                    <li><a class="dropdown-item" onclick="openFile('{{f.fname}}','{{f.data_id}}')">Open</a></li>
+                                    <li><a class="dropdown-item" href="{{f.file.url}}" download>Download</a></li>
+                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#CopyModel">Copy</a></li>
+                                    <li><a class="dropdown-item"  data-bs-toggle="modal" data-bs-target="#MoveModel">Move</a></li>
+                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#shareFileModal" data-id="{{f.data_id}}">Share</a></li>
+                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#DeleteModel">Delete</a></li>
+                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#RenameModel">Rename</a></li>
+                                    
+                                        </ul></div>
+                                </td>
+                                <td>{{ f.file.size|filesize_in_kb }}</td>
+                                <td>{{ f.created_at|date:"Y-m-d H:i" }}</td>
+                                <td>{{ f.updated_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    {% for user in f.shared_with_file.all %}
+                                     @ <span style="color: black;">{{ user.username }}{{ f.updated_at }} </span>{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                        Not shared
+                                    {% endfor %}
+
+                                </td>
+                                
+                            </tr>
+                            {% empty %}
+                           
+                            {% endfor %}
+                        </tbody>
+                        </div>
+                        <tbody>
+                            <!-- For displaying folders -->
+                            {% for fd in folders %}
+                            <tr>
+                                <td> <div class="item file-card dropdown" data-id="{{fd.data_id}}" data-type="{{fd.data_type}}">
+                                    <img width="30" height="30" src="https://img.icons8.com/3d-fluency/94/folder-invoices--v2.png" alt="folder-invoices--v2"/> {{ fd.name }}
+                                    <ul class="dropdown-menu">
+
+                                 <!-- Right Click Menu for folders-->
+                                    <li><a class="dropdown-item" href="{% url 'folder' fd.data_id %}">Open</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'download_folder' fd.data_id%}">Download</a></li>
+                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#CopyModel">Copy</a></li>
+                                    <li><a class="dropdown-item"  data-bs-toggle="modal" data-bs-target="#MoveModel">Move</a></li>
+                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#shareFileModal" data-id="{{fd.data_id}}">Share</a></li>
+                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#DeleteModel">Delete</a></li>
+                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#RenameModel">Rename</a></li>
+                                    
+                                    </ul></div>
+                                </td>
+                                <td>{{ fd.data_id|item_counts }} items</td>
+                                <td>{{ fd.created_at|date:"Y-m-d H:i" }}</td>
+                                <td>{{ fd.updated_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    {% for user in fd.shared_with_folder.all %}
+                                    @ <span style="color: black;">{{ user.username }}{{ fd.updated_at }} </span>{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                        Not shared
+                                    {% endfor %}
+                                
+                                </td>
+                             
+                            
+                            </tr>
+                            {% empty %}
+                           
+                            {% endfor %}
+                        </tbody>
+                        <tbody>
+                            <td colspan="5" class="text-center" style="padding: 70px;"></td>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </main>
+        </div>
+    </div>
+    
+    {% block body %}{% endblock body %}
+    
+    
+   
+  
+  </body>
+</html>

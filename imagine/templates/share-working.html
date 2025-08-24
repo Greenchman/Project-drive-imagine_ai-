@@ -1,0 +1,901 @@
+{% load static %}
+{% load my_custom_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imagine Drive</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
+
+    
+
+   
+</head>
+<body>
+      {% load static %}
+
+    <script>
+        // Dynamically set the base URL using Django's url template tag
+        var baseUrl = "http://127.0.0.1:8000/";  // Adjust 'your_base_view_name'
+        
+    </script>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Include the PDF.js library -->
+    
+    
+    <script src="{% static 'js/xlsx.js'%}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="{% static 'js/zip.js'%}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/unrar-js@0.4.0/dist/unrar.js"></script>
+   
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand logo swift-fonts" href="#">
+                <img src="https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_48dp.png" alt="MyDrive Logo">
+                Imagine Drive
+            </a>
+            <form class="d-flex mx-auto w-50">
+                <input class="form-control me-2" type="search" placeholder="Search in MyDrive" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+   <!--  Displaying the short name of the user with details and change password feature-->
+            <div class="initials-circle dropdown"  style="left: -150px;" >
+                {% with user.username|get_short_uname as stname %}
+                <a class="rounded-circle" style="color:white;font-size:20px; left: 0px;" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{stname}}</a>
+                {% endwith %}
+               
+                <div class="dropdown-menu swift-fonts"  aria-labelledby="dropdownMenuButton">
+                 <a class="dropdown-item" style="font-weight:bold; color:blue;">{{user.username}}</a>
+                 <a class="dropdown-item" style="font-weight:bold; color:blue;" >{{user.email}}</a>
+                 <a class="dropdown-item" style="font-weight:bold; color: red;" data-bs-toggle="modal" data-bs-target="#ChangePasswordModal">Change Password</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+ 
+    <!-- Sidebar and Content -->
+    
+    <div class="container-fluid">
+        
+        <div class="row">
+            <nav id="sidebarMenu" class=" holding col-md-3 col-lg-1 d-md-block">
+     
+                <!-- Showing the user name and the location currently the user is -->
+                <div class="fw-bold swift-fonts text-center " style="color:gray">
+                    <h4>{{user.username}}</h4>
+                    <h4></h4>
+                    <h4 style="color:blue" >Share Box</h4>
+                 </div>
+                 <div style="right: 50%;">
+                
+                </div>
+                <!-- Sidebar -->
+                <div class=" pt-3 px-md-0">
+                    <ul class="nav flex-column">
+                        <li class="nav-item text-center"style="padding: 10px">
+                         
+                            <a class=" btn btn-primary swift-fonts dropdown-toggle" data-bs-toggle="collapse" href="#collapseExample" role="button" 
+                            aria-expanded="false" aria-controls="collapseExample" style ="width: 100%" >Sidebar</a>
+                        </li>
+                        <li class="nav-item collapse"style="padding: 10px" id="collapseExample" >
+                           
+                            <a class="btn btn-secondary swift-fonts " href="{% url 'index' %}" style ="width: 100%" >
+                                <i class='fas fa-folder-open' style='font-size:24px'></i>
+                               My Files
+                            </a>
+                        </li>
+                        <li class="nav-item collapse" style="padding: 10px" id="collapseExample">
+                            <a class="btn btn-secondary swift-fonts" href="{% url 'display_sharing' %}" style ="width: 100%">
+                                <i class='fas fa-share-square' style='font-size:24px'></i>
+                             Share Box
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item collapse"style="padding: 10px" id="collapseExample">
+                            <a class="btn btn-secondary  swift-fonts" href="{% url 'trash_display_with_move' %}" style ="width: 100%">
+                                <i class='fas fa-trash-alt' style='font-size:24px'></i>
+                                Junk Box 
+                            </a>
+                            
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-2  col-lg-10 px-md-5 ">
+                <div class="toolbar my-4" style="padding: 10px;">
+
+                     <!-- Depending on the user permission the New button will be disabled or enabled  -->
+                    {% if parent_id %}
+                    {% with parent_id|get_folder_intance as parent %}
+                    {% if user_permissions == 'Write' or parent.folderuser == user %}
+         
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            ➕ New
+                        </button>
+                        {% elif user_permissions == 'Read' or parent.folderuser != user %}
+                        <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                            ➕ New
+                        </button>
+                        {% endif %}
+                        {% endwith %}
+
+                         <!--Downdown Menu for folder create and file uplaod  -->
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#newFolderModal">📂 New Folder</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#uploadModal">⬆️ Upload Files</a></li>
+                            
+                        </ul>
+                        
+                    </div>
+                    <div class="d-flex-align-items-center">
+                        
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" disabled>⬅️ Back</button>
+                       
+    				</div>
+                    {% endif %}
+                    <div style="padding: 10px;">
+                        {% load my_custom_tags %}
+                        <div>
+                            <!-- Displaying the path list for the unidirectional navigation inside of the folder. -->
+                            <a class="btn btn-primary swift-fonts" href="{% url 'display_sharing' %}" 
+                                 style=" font-size: 17px"> Share </a> <div class="btn btn-secondary" > ></div>
+                                
+                            {% with list=parent_id|back_history_sharing:parent_name %}                          
+                            {% for parent in list %}
+        
+                                 <a class="btn btn-primary swift-fonts" href="{% url 'load_parent_sharing' parent.data_id parent_name user_permissions %}" 
+                                 style="font-size: 17px"> {{ parent }} </a> <div class="btn btn-secondary" > ></div>
+                              {% endfor %}
+                            {% endwith %}
+                           
+                        </div>
+                    </div>
+  
+                    <div class="beside-back ms-sm-auto">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'logout' %}">
+        				<button class="btn btn-outline-secondary me-2" style="font-size: 13px;">⬅️ Logout</button>
+                        </a>
+                        {% endif %}
+    				</div>
+                </div>
+                {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              
+              {% endif %}
+
+
+         <!-- Slide tab for " Share_by_you" and "Shard_with_you" tab-->
+                
+                    <div>
+                        <div>
+                            <a class="btn btn-primary swift-fonts" style="font-size: 17px" type="button" href="{% url 'display_sharing' %}" data-bs-slide-to="1"  aria-label="Slide 2">
+                                Shared_With_You
+                              </a>
+                            <a class="btn btn-primary swift-fonts" style="font-size: 17px" type="button" href="{% url 'display_sharing_with_tab' tab='shared_by_you' %}" data-bs-slide-to="0"  class="active" aria-current="true" aria-label="Slide 1">
+                                Shared_By_You
+                            </a>
+                             
+                        </div>
+                    </div>
+                <div id="carouselExampleCaptions" class="carousel slide">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <div class="table-responsive mt-2 d-block w-100">
+                                <table class="table table-hover">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">File Size</th>
+                                            <th scope="col">Owner</th>
+                                            <th scope="col">Shared_On</th>
+                                            <th scope="col">Permission</th>
+                                            <th scope="col">Modified</th>
+                                        </tr>
+                                    </thead>
+                                    {% load my_custom_tags %}
+                                    <tbody >
+                                         <!-- Shared Files to display  -->
+                                        {% for f in files %}
+                                        <tr>
+                                            <td>
+                                                 <div class="item file-card dropdown" data-id="{{f.data_id}}" data-type="{{f.data_type}}">
+                                                   {% with f.fname|file_extension as ext %}
+                                                        {% if ext == 'pdf' %}
+                                                           <img width="35" height="35" src="https://img.icons8.com/color/48/pdf-2--v1.png" alt="pdf-2--v1"/>
+                                                        {% elif ext == 'doc' or ext == 'docx' %}
+                                                           <img width="35" height="35" src="https://img.icons8.com/color/48/word.png" alt="word"/>
+                                                        {% elif ext == 'xls' or ext == 'xlsx' %}
+                                                            <img width="35" height="35" src="https://img.icons8.com/color/48/xls.png" alt="xls"/>
+                                                        {% elif ext == 'jpg' or ext == 'png' %}
+                                                           <img width="35" height="35" src="https://img.icons8.com/color/48/full-image.png" alt="full-image"/>
+                                                        {% elif ext == 'txt' %}
+                                                           <img width="35" height="35" src="https://img.icons8.com/color/48/txt.png" alt="txt"/>
+                                                        {% elif ext == 'ppt' or ext == 'pptx' %}
+                                                           <img width="35" height="35" src="https://img.icons8.com/color/48/powerpoint.png" alt="powerpoint"/>
+                                                        {% elif ext == 'exe' %}
+                                                           <img width="35" height="35" src="https://img.icons8.com/color/48/exe.png" alt="exe"/>
+                                                        {% elif ext == 'txt' %}
+                                                           <img width="35" height="35" src="https://img.icons8.com/color/48/txt.png" alt="txt"/>
+                                                        {% elif ext == 'zip' or ext == 'rar'%}
+                                                          <img width="35" height="35" src="https://img.icons8.com/fluency/48/archive.png" alt="archive"/>
+                                                        {% elif ext == 'mp4' or ext == 'avi' or ext == 'mov' or ext == 'wmv' or ext == 'mkv'  or  ext == 'webm' %}
+                                                          <img width="35" height="35"src="https://img.icons8.com/ios-filled/50/video-file.png" alt="video-file"/>
+                                                        {% else %}
+                                                          <img width="35" height="35"  src="https://img.icons8.com/color/48/file.png" alt="file"/>    
+                                                        {% endif %}
+                                                  {% endwith %} 
+                                                <a data-file-name="{{f.fname}}" data-file-id="{{f.data_id}}" 
+                                                ondblclick="openFile(this.getAttribute('data-file-name'), this.getAttribute('data-file-id'))">{{ f.fname }}</a>
+                                                <ul class="dropdown-menu">
+
+                                             <!-- Displaying the right click features-->
+                                                <li><a class="dropdown-item" onclick="openFile('{{f.fname}}','{{f.data_id}}')">Open</a></li>
+                                                
+                                                {% if user_permissions == 'Write' or f.folder.folderuser == request.user %}
+                                                   <li><a class="dropdown-item" href="{{f.file.url}}">Download</a></li>
+                                                   <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#RenameModel">Rename</a></li>
+                                                   {% endif %}
+                                                  
+                                                </ul>
+                                             </div>
+                                            </td>
+                                            <td>{{ f.file.size|filesize_in_kb }}</td>
+                                            <td>
+                                                {% if f.folder.folderuser == request.user %}
+                                                  @ <span style="color: black;">You</span>
+                                                {% else %}
+                                                 @ <span style="color: black;">{{ f.folder.folderuser}}</span>
+                                               {% endif %}
+                                                
+                                            </td>
+                                            <td>
+                                                {% for permission in f.userfilepermission_set.all %}
+                                                {{ permission.shared_on|date:"Y-m-d H:i" }}
+                                                {% empty %}
+                                                    Inherited Shared
+                                                {% endfor %}
+
+                                            </td> <!-- Formats shared_on date -->
+                                            <td>{% for permission in f.userfilepermission_set.all %}
+                                                        {% if f.folder.folderuser != request.user%}
+                                                            <span style="color: black;">{{ permission.get_permission_display }}</span>
+                                                        {% elif f.folder.folderuser == request.user%}
+                                                            <span style="color: black;">Write Permission as owner</span>
+                                                        {% endif %}
+                                                {% empty %}
+                                                        {% if f.folder.folderuser != request.user%}
+                                                            <span style="color: black;">Inherited Permission {{ user_permissions }}</span>
+                                                        {% elif f.folder.folderuser == request.user%}
+                                                            <span style="color: black;">Write Permission as owner</span>
+                                                        {% endif %}
+                                                {% endfor %}
+   
+                                             </td> <!-- Displays human-readable permission -->
+                   
+                                            <td>{{ f.updated_at|date:"Y-m-d H:i" }}</td>   
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tbody>
+                                         <!-- Folder to display  -->
+                                        {% for fd in folder %}
+                                        <tr>
+                                            <td> <div class="item file-card dropdown" data-id="{{fd.data_id}}" data-type="{{fd.data_type}}">
+                                                <img width="30" height="30" src="https://img.icons8.com/3d-fluency/94/folder-invoices--v2.png" alt="folder-invoices--v2"/> {{ fd.name }}
+                                                <ul class="dropdown-menu">
+
+                                          <!-- Displaying the right click feature dinamically depending on the permission on Shared files -->
+                                                <li><a class="dropdown-item" href="{% url 'inside_sharing_fupload' fd.data_id user_permissions parent_name %}">Open</a></li>
+                                                {% if user_permissions == 'Write' or fd.folderuser == request.user %}
+                                                <li><a class="dropdown-item" href="{% url 'download_folder' fd.data_id %}">Download</a></li>
+                                                <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#RenameModel">Rename</a></li>
+                                                
+                                                {% endif %}
+                                            
+                                                </ul></div>
+                                            </td>
+                                            <td>{{ fd.data_id|item_counts }} items</td>
+                                            <td>
+                                                {% if fd.folderuser.username == user.username %}
+                                                @ <span style="color: black;">You</span>
+                                              {% else %}
+                                               @ <span style="color: black;">{{ fd.folderuser.username }}</span>
+                                             {% endif %}
+                                            </td>
+                                            <td>Inherited shared</td>
+                                            <td>{% for permission in fd.userfolderpermission_set.all %}
+                                                    {% if fd.folderuser != request.user%}
+                                                            <span style="color: black;">{{ permission.get_permission_display }}</span>
+                                                    {% elif fd.folderuser == request.user%}
+                                                            <span style="color: black;">Write Permission as owner</span>
+                                                    {% endif %}
+                                                {% empty %}
+                                                    {% if fd.folderuser != request.user%}
+                                                             <span style="color: black;">Inherited Permission {{ user_permissions }}</span>
+                                                    {% elif fd.folderuser == request.user%}
+                                                            <span style="color: black;">Write Permission as owner</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                            <td>{{ fd.updated_at|date:"Y-m-d H:i" }}</td> 
+                                        </tr>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tbody>
+                                        <td colspan="6" class="text-center" style="padding: 70px;"></td>
+                                    </tbody>
+                                </table>
+                            
+                            </div>
+                        </div>    
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+        <!--Password change Model -->
+
+<div class="modal fade" id="ChangePasswordModal" tabindex="-1" aria-labelledby="ChangePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content swift-fonts">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ChangePasswordModalLabel">Create New Folder</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="ChangePasswordForm" action="{% url 'Change_password' %}"  method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="New_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="New_password" name="New_password" placeholder="Enter new password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+        <!-- New Folder Modal -->
+        <div class="modal fade" id="newFolderModal" tabindex="-1" aria-labelledby="newFolderModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content swift-fonts">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newFolderModalLabel">Create New Folder</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="newFolderForm" action="{% url 'addfolder_sharing' parent_id user_permissions parent_name %}"  method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="folderName" class="form-label">Folder Name</label>
+                                <input type="text" class="form-control" id="folderName" name="foldername" placeholder="Enter folder name" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Upload Modal -->
+        <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content swift-fonts">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadModalLabel">Upload Files</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="uploadForm" action="{% url 'inside_sharing_fupload' parent_id user_permissions parent_name %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="uploadFiles" class="form-label">Select files</label>
+                                <input class="form-control" type="file" id="uploadFiles" name="file" multiple required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+           <!-- Rename Modal -->
+        <div class="modal fade" id="RenameModel" tabindex="-1" aria-labelledby="RenameModelLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content swift-fonts">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="RenameModellLabel">Rename Objects</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                       
+                        <form id="renameForm" action="{% url 'rename_sharing' parent_id user_permissions parent_name %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="renameObjects" class="form-label">Rename Objects</label>
+                                <input type="hidden" id="item_Id" name="item_id" value="">
+                                <input type="hidden" id="item_Type" name="item_type" value="">
+                                <input type="text" class="form-control" id="reName" name="new_name" placeholder="Enter new name" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Rename</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+             <!-- pdf viewer model-->
+  <!-- This is where the PDF will be rendered -->
+     <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+        <div class="modal-dialog view-model-pdf" role="document">
+            <div class="modal-content swift-fonts">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"> 
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h3 id="file-name-pdf"></h3>
+                    <div id="pdfViewer" style="overflow: auto; max-height: 750px; max-width: 1500px;"></div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+     <!-- excel viewer model-->
+  <!-- This is where the excel will be rendered -->
+    <div class="modal fade" id="excelModal" tabindex="-1" role="dialog" aria-labelledby="excelModalLabel" aria-hidden="true">
+        <div class="modal-dialog view-model-excel" role="document">
+            <div class="modal-content swift-fonts">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="excelModalLabel">Excel Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"> 
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-container">
+                        <h3 id="file-name-excel"></h3>  <!-- Element to show the file name -->
+                        <table id="excel-table" style="width: 100%; border-collapse: collapse;">
+                            <!-- Content will be inserted dynamically by JavaScript -->
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+                                 <!-- Image Modal -->
+  <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content swift-fonts">
+        <div class="modal-header">
+          <h5 class="modal-title" id="file-name-image">Image Name</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <img id="image-view" src="" alt="Image" style="width: 100%; height: auto;" />
+        </div>
+       </div>
+     </div>
+   </div>
+                                               <!-- zip archive Display Modal -->
+  <div class="modal fade" id="zipFileModal" tabindex="-1" aria-labelledby="zipFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content swift-fonts">
+        <div class="modal-header">
+          <h5 class="modal-title" id="zipFileModalLabel">ZIP File Contents</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul id="zipFileContentList"></ul> <!-- ZIP file content will be displayed here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rar File Display Model-->
+                     <!-- RAR Modal -->
+<div class="modal fade" id="rarModal" tabindex="-1" aria-labelledby="rarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content swift-fonts">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rarModalLabel">RAR File: <span id="rarFileName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="rarModalContent">
+                <!-- Extracted files will be displayed here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Doc and Docx file Display Model-->
+<div class="modal" id="docModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog view-model-pdf" role="document">
+        <div class="modal-content swift-fonts">
+            <div class="modal-header">
+                <h5 class="modal-title">Document Viewer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"> 
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body" style="overflow: auto; max-height: 750px; max-width: 1800px;">
+                <!-- Document will be displayed here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+
+
+
+
+    
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/unrar-js@0.2.3/unrar.min.js"></script>
+
+    <script>
+    //////////////////////////// Function to handle right-click and dropdown behavior///////////////////////////////
+        document.querySelectorAll('.file-card').forEach(card => {
+            card.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+                this.classList.add('show-menu');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.file-card')) {
+                document.querySelectorAll('.file-card').forEach(c => c.classList.remove('show-menu'));
+            }
+        });
+       
+         
+/////////////////////// for rename function use input find and calling the function////////////////////////
+
+         document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('renameForm');
+            const itemIdInput = document.getElementById('item_Id');
+            const itemTypeInput = document.getElementById('item_Type');
+        
+            document.querySelectorAll('.item').forEach(item => {
+                item.addEventListener('contextmenu', function(event) {
+                    event.preventDefault(); // Prevent the default context menu
+        
+                    // Get item ID and type
+                    const itemId = this.getAttribute('data-id');
+                    const itemType = this.getAttribute('data-type'); // Ensure 'data-type' is set for each item
+                
+                    // Set the hidden fields in the form
+                    itemIdInput.value = itemId;
+                    itemTypeInput.value = itemType;
+                  
+        
+                    // Show the form/modal (adjust based on your modal implementation)
+                    // Example: Use Bootstrap modal
+                    $('#renameModal').modal('show');///
+                });
+            });
+        });
+
+///////////////////////////For File opening Module js script //////////////////////
+        
+    function openFile(file_name, file_id) {
+            const exts = file_name.split('.').pop().toLowerCase();  // Extract the extension directly
+            
+            if (exts === 'pdf') {
+            const pdfViewerElement = document.getElementById('pdfViewer');
+            const fileNameElement = document.getElementById("file-name-pdf");
+            fileNameElement.innerText = file_name; 
+            // Clear previous content in the viewer
+            pdfViewerElement.innerHTML = '';
+             // Set the file name
+           // Set the file name
+            // Construct the URL for the PDF file
+            const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // Adjust as needed
+            // Load the PDF file
+            var loadingTask = pdfjsLib.getDocument(url);
+            loadingTask.promise.then(function(pdf) {
+                // Loop through each page of the PDF
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    pdf.getPage(pageNum).then(function(page) {
+                        const scale = 2.4;  // Adjust scale as needed
+                        const viewport = page.getViewport({ scale: scale });
+        
+                        // Create a canvas for the current page
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        pdfViewerElement.appendChild(canvas);  // Add the canvas to the viewer
+        
+                        // Render the PDF page into the canvas
+                        const renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        page.render(renderContext);
+                    });
+                }
+                // Show the modal after loading the PDF
+                $('#pdfModal').modal('show');
+            }).catch(function(error) {
+                console.error("Error loading PDF:", error);
+            });
+    
+    }    
+        else if (exts == 'xlsx' || exts =='xls'){
+            const table = document.getElementById("excel-table");
+            const fileNameElement = document.getElementById("file-name-excel");
+            table.innerHTML = '';  // Clear previous content
+            fileNameElement.innerText = file_name;  // Set the file name
+
+        
+            const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // call the open_file view function
+        
+            // Fetch the Excel file
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.arrayBuffer();
+                })
+                .then(data => {
+                    const workbook = XLSX.read(data, { type: "array" });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+        
+                    const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    sheetData.forEach(rowData => {
+                        const row = table.insertRow();
+                        rowData.forEach(cellData => {
+                            const cell = row.insertCell();
+                            cell.innerText = cellData;
+                        });
+                    });
+        
+                    $('#excelModal').modal('show');  // Show the modal
+                })
+                .catch(function(error) {
+                    console.error("Error loading PDF:", error);
+                });
+        }
+        else if (exts === 'jpg' || exts === 'jpeg' || exts === 'png' || exts === 'gif' || exts === 'bmp') {
+            const imageElement = document.getElementById("image-view");
+            const fileNameElement = document.getElementById("file-name-image");
+            
+            fileNameElement.innerText = file_name;  // Set the file name
+            const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // call the open_file view function
+        
+            // Fetch the image file
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.blob();  // Get the image data as a blob
+                })
+                .then(imageBlob => {
+                    const imageUrl = URL.createObjectURL(imageBlob);  // Create a local URL for the image blob
+                    imageElement.src = imageUrl;  // Set the image source to the fetched image URL
+                    
+                    $('#imageModal').modal('show');  // Show the image modal
+                })
+                .catch(function(error) {
+                    console.error("Error loading image:", error);
+                });
+        }
+        else if (exts === 'rar' || exts === 'zip') {
+            if (exts === 'zip') {
+                handleZipFile(file_id); // Use the JSZip function for ZIP files
+            } else if (exts === 'rar') {
+                handleRarFile(file_id); // Handle RAR files using unrar.js
+            } else {
+                // Handle other file types
+            }
+        
+                                                                     
+        function handleZipFile(file_id) {
+
+            const zipFileContentList = document.getElementById('zipFileContentList');
+            zipFileContentList.innerHTML = ""; // Clear previous content
+
+            const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // call the open_file view function
+        
+            fetch(url)
+                .then(response => response.arrayBuffer())
+                .then(data => {
+                    const zip = new JSZip();
+                    return zip.loadAsync(data);
+                })
+                .then(zipContent => {
+                    
+                    zipContent.forEach(function (relativePath, zipEntry) {
+                        const li = document.createElement('li');
+                        li.textContent = relativePath;
+                        zipFileContentList.appendChild(li);
+                    });
+                   
+                    $('#zipFileModal').modal('show');
+                })
+                .catch(error => {
+                    console.error('Error handling ZIP file:', error);
+                });
+            }
+        function handleRarFile(file_id){
+            const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // Call your Django view for RAR
+
+            // Fetch the RAR file
+            fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.arrayBuffer(); // Convert the response to an array buffer
+            })
+            .then(data => {
+                const archiveData = new Uint8Array(data);
+
+                // Use unrar.js to extract the contents
+                const unpackedFiles = Unrar.unrarSync(archiveData, {
+                    onProgress: function(data) {
+                        const percent = Math.round((data.currentBytesUnarchived / data.totalUncompressedBytesInArchive) * 100);
+                        console.log("Progress: ", percent, "%");
+                    }
+                });
+
+                // Clear the modal content (if any previous content exists)
+                const modalContent = document.getElementById('rarModalContent');
+                modalContent.innerHTML = '';
+
+                // Update modal content with unpacked files
+                unpackedFiles.forEach(function(file) {
+                    const fileElement = document.createElement('div');
+                    fileElement.innerText = `File: ${file.filename}, Size: ${file.fileData.length} bytes`;
+                    modalContent.appendChild(fileElement);
+                });
+
+                // Show the modal with extracted files
+                $('#rarModal').modal('show');
+            })
+            .catch(error => {
+                console.error("Error loading RAR file:", error);
+            });
+                function handleClick(file) {
+                    const url = baseUrl + 'get_object_details/' + encodeURIComponent(file);
+                
+                    // Fetch the file details (object_id and file_name)
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            const objectId = data.object_id;
+                            const fileName = data.file_name;
+                            
+                            openFile(fileName, objectId)
+                        })
+                        .catch(error => {
+                            console.error("Error fetching file details:", error);
+                        });
+                
+                }  
+           }
+
+        }
+        else if (exts == 'docx' || exts =='doc'){
+
+                const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);
+                console.log("Fetching URL:", url);
+            
+                fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const arrayBuffer = event.target.result;
+                        mammoth.convertToHtml({ arrayBuffer: arrayBuffer })
+                            .then(displayResult)
+                            .catch(err => console.error("Error converting document:", err));
+                    };
+                    reader.readAsArrayBuffer(blob);
+                })
+                .catch(error => {
+                    console.error("Error loading document:", error);
+                });
+            
+            function displayResult(result) {
+                const modalBody = document.getElementById('modal-body');
+                modalBody.innerHTML = result.value; // Set the HTML content
+                $('#docModal').modal('show'); // Show the modal
+            }
+            
+        }
+        else if (exts == 'txt' || exts == 'ps' || exts == 'bin' || exts == 'cmd') {
+            const url = baseUrl + 'open_file/' + encodeURIComponent(file_id);  // Call the open_text_file view function
+        
+            // Fetch the text file
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.text(); // Read the response as text
+                })
+                .then(text => {
+                    const modalBody = document.getElementById('modal-body');
+                    modalBody.innerHTML = ''; // Clear previous content
+                    const pre = document.createElement('pre'); // Use <pre> to preserve formatting
+                    pre.textContent = text; // Set the text content
+                    modalBody.appendChild(pre); // Add the text to the modal
+        
+                    $('#docModal').modal('show'); // Show the modal
+                })
+                .catch(error => {
+                    console.error("Error loading text file:", error);
+                });
+        }    
+     
+    }
+            
+   
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    
+   
+  
+  </body>
+</html>
